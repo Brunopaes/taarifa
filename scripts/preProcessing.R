@@ -13,18 +13,17 @@ dataset = na.omit(dataset)
 sapply(dataset, class)                                  # [1] 'character'
 
 ## Char to Factor
-dataset$installer = as.factor(paste(dataset$installer))
-dataset$basin = as.factor(paste(dataset$basin))
-dataset$scheme_management = as.factor(paste(dataset$scheme_management))
-dataset$extraction_type_class = as.factor(paste(dataset$extraction_type_class))
-dataset$management_group = as.factor(paste(dataset$management_group))
-dataset$payment_type = as.factor(paste(dataset$payment_type))
-dataset$quality_group = as.factor(paste(dataset$quality_group))
-dataset$quantity = as.factor(paste(dataset$quantity))
-dataset$source_class = as.factor(paste(dataset$source_class))
-dataset$waterpoint_type_group = as.factor(paste(dataset$waterpoint_type_group))
-dataset$status_group = as.factor(paste(dataset$status_group))
+for (i in 1:3) {
+  dataset[, i] = as.factor(paste(dataset[, i]))
+}
 
+for (i in 5:ncol(dataset)) {
+  dataset[, i] = as.factor(paste(dataset[, i]))
+}
+
+rm(i)
+
+## checking the unique attributes length
 length(unique(dataset[, 1]))
 length(unique(dataset[, 2]))
 length(unique(dataset[, 3]))
@@ -37,7 +36,3 @@ length(unique(dataset[, 9]))
 length(unique(dataset[, 10]))
 length(unique(dataset[, 11]))
 length(unique(dataset[, 12]))
-
-
-# dataset[, 1] = NULL
-# dataset[, 4] = NULL

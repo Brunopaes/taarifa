@@ -204,3 +204,15 @@ sum(dataset$construction_year == 0)                     # [2] 20709
 ## Conclusion: This attribute, among others, is one of the most important. So it should not be removed. 
 ## However, there are inconsistent values (20709 records equal to 0). 
 ## These records, or should be treated or removed from the dataset.
+
+## Random Forests cannot handle with more than 53 categorical classes!
+## 1st Approach: Remove the installer and the construction_year.
+## 2nd Approach: If this decision directly impacts on the accuracy of the model, 
+## dummy variables will be constructed.
+length(unique(dataset$installer))                       # [1] 2146
+length(unique(dataset$construction_year))               # [2] 1898
+
+## Conclusion: Removing the attributes (installer and construction_year) intead of 
+## creating some dummy variables (1st Approach).
+dataset$installer = NULL
+dataset$construction_year = NULL
