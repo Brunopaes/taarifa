@@ -1,5 +1,5 @@
 # ------------------------------------------------------ Testing and Validation Function
-# randomForest and RWeka classifiers
+# randomForest
 predVal = function(model, test) {
   predict = predict(model, test)
   real = test$status_group
@@ -7,3 +7,13 @@ predVal = function(model, test) {
   print(sum(predict == real)/nrow(test))
   confusionMatrix(table(predict, real))
 }
+
+# randomForest - Grid Search
+predVal = function(model, test) {
+  predict = model
+  real = test$status_group
+  
+  print(sum(predict == real)/nrow(test))
+  confusionMatrix(table(predict, real))
+}
+

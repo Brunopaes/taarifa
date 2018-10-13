@@ -11,7 +11,7 @@ predVal(rForest, test)
 tempTest = c()
 tempTrain = c()
 
-for (i in 100:500) {
+for (i in 1:700) {
   rForest = randomForest(myFormula, data = train, importance = TRUE, do.trace = FALSE, ntree = i, mtry = 5, nodesize = (abs(i - 90)))
   pred = predict(rForest, test)
   pred2 = predict(rForest, train)
@@ -24,18 +24,34 @@ for (i in 100:500) {
   } 
 }
 
-plot(tempTrain, main = 'Learning Curve - rForest (gSearch 100:500)', type = 'l', col = 'red', xlim = c(99, 501), ylim = c(0.73, 0.83), ylab = 'Accuracy')
-lines(tempTest, type = 'l', col = 'blue')
+plot(tempTrain[1:250], main = 'Learning Curve - rForest (gSearch 1:250)', type = 'l', col = 'red', xlim = c(0, 240.5), ylim = c(0.74, 0.86), ylab = 'Accuracy')
+lines(tempTest[1:250], type = 'l', col = 'blue')
 legend("topright", inset = 0.15, title = "datasets", c("train","test"), fill = c("red","blue"), horiz = FALSE)
+
+plot(tempTrain - tempTest, type = 'l', col = 'cyan', main = 'Train Test accuracy (gSearch 1:500)', xlim = c(0, 500))
 
 rm(pred2)
 rm(pred)
 rm(i)
 
 ## Does removing the installer attributes and the year of construction was a good approach?
-## Mean Assertiveness Rate
-tempTrain = na.omit(tempTrain)
-tempTest = na.omit(tempTest)
+mean(tempTrain)                                        # [1] 0.7779577
+mean(tempTest)                                         # [2] 0.7560155
 
-mean(tempTrain)                                        # [1] 0.7704291
-mean(tempTest)                                         # [2] 0.7526957
+max(tempTrain)                                         # [1] 0.859281
+max(tempTest)                                          # [2] 0.7822662
+
+predVal(pred2, train)
+#                           real
+# predict                   functional |  functional_needs_repair |  non_functional
+# functional                     14828 |                     1460 |            4019
+# functional needs repair           31 |                       36 |               4
+# non functional                  1070 |                      350 |            6130   
+
+predVal(pred, test)
+#                           real
+# predict                   functional  | functional_needs_repair |  non_functional
+# functional                      3684  |                     360 |            1042
+# functional needs repair            7  |                       6 |               2
+# non functional                   291  |                      95 |            1494
+
