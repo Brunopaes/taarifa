@@ -71,7 +71,7 @@ sum(is.na(dataset$lga))                                 # [5] 0
 sum(is.na(dataset$ward))                                # [6] 0
 sum(is.na(dataset$subvillage))                          # [7] 371
 
-## Conclusion: although the meaning of both seven attributes is (basically) the same, the basin 
+## Conclusion: although the meaning of all seven attributes is (basically) the same, the basin 
 ## attribute is, compared to the other six attributes, 'slightly' less complex (9 unique records).
 ## Therefore, the basin attribute, can better generalize the dataset.
 dataset$district_code = NULL
@@ -86,7 +86,7 @@ dataset$subvillage = NULL
 dataset$date_recorded = NULL
 ## Does the recorded by impact the model?
 dataset$recorded_by = NULL
-## Removing the waterpoint name - the name of the waterpoint does not influence in the status of the same?
+## Removing the waterpoint name - does the name of the waterpoint influences in the status of the same?
 dataset$wpt_name = NULL
 
 ## Comparing the scheme_management and scheme_name attributes:
