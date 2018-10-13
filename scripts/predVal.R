@@ -2,18 +2,8 @@
 # randomForest and RWeka classifiers
 predVal = function(model, test) {
   predict = predict(model, test)
+  real = test$status_group
   
-  real = test$y
-  
-  print(sum(predict == test$y)/nrow(test))
-  confusionMatrix(table(predict, real))
-}
-
-# knn classifier
-validation = function(model, test) {
-  predict = model
-  real = test$y
-  
-  print(sum(predict == test$y)/nrow(test))
+  print(sum(predict == real)/nrow(test))
   confusionMatrix(table(predict, real))
 }
