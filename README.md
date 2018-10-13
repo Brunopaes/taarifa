@@ -17,9 +17,9 @@ This project contains __3__ directories:
 ## Utilised Packages ##
 
  * __caret:__ Test/training sample separation library;
- * __party:__ Machine Learning Algorithms library;
+ * __naiveBayes:__ Deterministic Learning;
+ * __gml2:__ Generalized Linear Models;
  * __randomForest:__ Ensemble Learning;
- * __RWeka:__ Machine Learning Algorithms library.
 
 ----------------------------------------
 
