@@ -13,11 +13,11 @@ tempTrain = c()
 
 for (i in 1:700) {
   rForest = randomForest(myFormula, data = train, importance = TRUE, do.trace = FALSE, ntree = i, mtry = 5, nodesize = (abs(i - 90)))
-  pred = predict(rForest, test)
-  pred2 = predict(rForest, train)
+  pred = predict(rForest, train)
+  pred1 = predict(rForest, test)
   print(i)
-  tempTrain[i] = (sum(pred2 == train$status_group)/nrow(train))
-  tempTest[i] = (sum(pred == test$status_group)/nrow(test))
+  tempTrain[i] = (sum(pred == train$status_group)/nrow(train))
+  tempTest[i] = (sum(pred1 == test$status_group)/nrow(test))
   print(tempTest[i])
   if (tempTest[i] >= 0.82) {
     break;

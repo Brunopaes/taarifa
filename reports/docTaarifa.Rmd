@@ -1,30 +1,160 @@
 ---
 title: "The Taarifa Problem"
-author: "Bruno Paes"
-date: "10/10/2018"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r include=FALSE}
+library(readr)
+trainX = read_csv("~/Documents/OneDrive/Acadêmico/ESPM/Semestre V/Tel 03.3009 - Machine Learning e Analytics/Trabalhos/taarifaProblem/data/trainX.csv")
+trainX$id = NULL
+
+trainY = read_csv("~/Documents/OneDrive/Acadêmico/ESPM/Semestre V/Tel 03.3009 - Machine Learning e Analytics/Trabalhos/taarifaProblem/data/trainY.csv")
+trainY$id = NULL
+
+dataset = cbind(trainX, trainY)
+
+rm(trainX)
+rm(trainY)
 ```
 
-## R Markdown
+<style>
+  body {text-align: justify }
+</style>
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Utilizando os dados da Taarifa e do Ministério das Águas da Tanzânia, pode-se prever quais _waterpoints_ são funcionais, quais precisam de reparos e quais não funcionam? Uma boa compreensão de quais _waterpoints_ irão falhar pode melhorar as operações de manutenção e garantir que água limpa e potável esteja disponível para as comunidades em toda a Tanzânia.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+******
 
-```{r cars}
-summary(cars)
+#### Pré-processamento
+
+O pré-processamento, uma das fases de maior relevância para projetos de _Data Mining_ e Aprendizado de Máquina, é fundamental para o sucesso do projeto. Os métodos de coleta de dados geralmente são frouxamente controlados, resultando em valores de intervalo _out-of-range_ e inconsistências por todo o _dataset_. Nesta etapa tenta-se entender e descrever o comportamento dos dados dentro do _dataset_.
+
+******
+
+#### Simplificação do _dataset_
+
+Esta seção, além de descrever os atributos presentes no dataset, também descreve os métodos e suas justificativas utilizadas para simplificação do _dataset_.
+
+******
+
+#### Amount_tsh: Total static head (amount water available to _waterpoint_).
+
+```{r echo=TRUE}
+sum(dataset$amount_tsh == 0)/nrow(dataset)
 ```
+Pode-se notar que, aproximadamente, 70% dos registros deste atributo possuem correspondência com o valor '0', ou seja, aparentemente grande parte dos _waterpoints_ possuem uma pequena quantidade de água disponível.
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r echo=TRUE}
+sum(is.na(dataset$amount_tsh))
 ```
+Este atributo não possui __NA Values__.
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r eval=TRUE}
+dataset$amount_tsh = NULL
+```
+Em função desta inconsistência, o atributo __amount_tsh__ foi removido do _dataset_.
+
+******
+
+#### Comparação - Quantity & Quantity_group: The quantity of water
+
+```{r eval=TRUE, echo=FALSE}
+dataset[1:5, c('quantity', 'quantity_group')]
+```
+Estes atributos, aparentemente, apresentam a mesma informação.
+
+```{r echo=TRUE}
+unique(dataset$quantity)
+unique(dataset$quantity_group)
+```
+Ambos atributos representam o mesmo leque de características. 
+
+```{r echo=TRUE}
+sum(is.na(dataset$quantity))
+sum(is.na(dataset$quantity_group))
+```
+Estes atributos não possuem __NA Values__.
+
+```{r eval=TRUE}
+dataset$quantity_group = NULL
+```
+Por serem, de certa forma, muito semelhantes. O atributo __quantity_group__ foi, devido a sua maior extensão de nome, removido.
+
+******
+
+#### GPS_Height:
+__Será que a altitude dos _waterpoints_ influenciam o modelo?__
+
+```{r eval=TRUE}
+sum(dataset$gps_height == 0)/nrow(dataset)
+```
+Aproximadamente 34% dos registros deste atributo possuem correspondência com o valor '0', ou seja, aparentemenre 34% dos _waterpoints_ encontram-se no nível do mar? 
+
+```{r eval=TRUE}
+sum(is.na(dataset$gps_height))
+```
+Este atributo não possui __NA Values__.
+
+```{r eval=TRUE}
+dataset$gps_height = NULL
+```
+Mesmo que embora este atributo possua significância para o modelo, o mesmo, de certa forma, apresenta muitas inconsistências.
+
+******
+
+#### Latitude & Longitude:
+__Será que a Latitude & Longitude dos _waterpoints_ influenciam o modelo?__
+
+```{r include=FALSE}
+lat = as.factor(paste(dataset$latitude))
+long = as.factor(paste(dataset$longitude))
+```
+```{r eval=TRUE}
+length(unique(lat))
+length(unique(long))      
+```
+O somatório de valores únicos nesses atributos, indica o quão complexo os mesmos podem deixar o modelo. 
+
+```{r eval=TRUE}
+dataset$longitude = NULL
+dataset$latitude = NULL
+```
+Estes atributos, embora 'interessantes', devido às suas baixas capacidades de generalização, deixam o modelo um tanto quanto complexo.
+
+******
+
+#### Comparação - basin, district_code, region, region_code, lga, ward & subvillage:
+```{r eval=TRUE}
+length(unique(dataset$basin))                      
+length(unique(dataset$district_code))                 
+length(unique(dataset$region))                   
+length(unique(dataset$region_code))         
+length(unique(dataset$lga))                          
+length(unique(dataset$ward))                    
+length(unique(dataset$subvillage))    
+```
+O somatório de valores únicos nesses atributos, indica o quão complexo os mesmos podem deixar o modelo. 
+
+```{r eval=TRUE}
+sum(is.na(dataset$basin))                             
+sum(is.na(dataset$district_code))                    
+sum(is.na(dataset$region))                           
+sum(is.na(dataset$region_code))                      
+sum(is.na(dataset$lga))                                
+sum(is.na(dataset$ward))                              
+sum(is.na(dataset$subvillage))  
+```
+Dentre esses atributos, somente o atributo __subvillage__ apresenta __NA Values__.
+
+```{r eval=TRUE}
+dataset$district_code = NULL
+dataset$region = NULL
+dataset$region_code = NULL
+dataset$lga = NULL
+dataset$ward = NULL
+dataset$subvillage = NULL
+```
+Embora o significado de todos os sete atributos seja (basicamente) o mesmo, o atributo __basin__ é, quando comparado com os outros seis atributos, 'levemente' menos complexo (9 valores únicos). Portanto, o atributo __basin__ consegue melhor generalizar o _dataset_. 
+
+******
+
