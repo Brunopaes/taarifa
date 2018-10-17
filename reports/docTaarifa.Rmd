@@ -78,7 +78,7 @@ Estes atributos não possuem __NA Values__.
 ```{r eval=TRUE}
 dataset$quantity_group = NULL
 ```
-Por serem, de certa forma, muito semelhantes. O atributo __quantity_group__ foi, devido a sua maior extensão de nome, removido.
+O atributo __quantity_group__ foi, devido a sua maior extensão de nome, removido.
 
 ******
 
@@ -154,7 +154,99 @@ dataset$lga = NULL
 dataset$ward = NULL
 dataset$subvillage = NULL
 ```
-Embora o significado de todos os sete atributos seja (basicamente) o mesmo, o atributo __basin__ é, quando comparado com os outros seis atributos, 'levemente' menos complexo (9 valores únicos). Portanto, o atributo __basin__ consegue melhor generalizar o _dataset_. 
+Embora o significado de todos os sete atributos sejam (basicamente) os mesmos, o atributo __basin__ é, quando comparado com os outros seis atributos, 'levemente' menos complexo (9 valores únicos). Portanto, o atributo __basin__ consegue melhor generalizar o _dataset_. 
 
 ******
 
+#### Recorded Date: The date the row was entered
+**Será que o atributo __recorded_date__ impacta o modelo?**
+
+```{r eval=TRUE}
+dataset$date_recorded = NULL
+```
+
+******
+
+#### Recorded by: Group entering this row of data
+**Será que o atributo __recorded_by__ impacta o modelo?**
+
+```{r eval=TRUE}
+dataset$recorded_by = NULL
+```
+
+******
+
+#### wpt_name: Name of the waterpoint if there is one
+**Será que o atributo __wpt_name__ impacta o modelo?**
+
+```{r eval=TRUE}
+dataset$wpt_name = NULL
+```
+
+******
+
+#### Comparação - scheme_management & scheme_name: Who operates the waterpoint
+```{r eval=TRUE}
+length(unique(dataset$scheme_management))             
+length(unique(dataset$scheme_name))
+```
+O somatório de valores únicos nesses atributos, indica o quão complexo os mesmos podem deixar o modelo. 
+
+```{r eval=TRUE}
+sum(is.na(dataset$scheme_management))                   
+sum(is.na(dataset$scheme_name))  
+```
+Dentre os atributos, ambos apresentam __NA Values__. No entanto, devido ao seu montante total (28166 __NA Values__), o atributo __scheme_name__ apresenta mais inconsistências.
+
+```{r eval=TRUE}
+dataset$scheme_name = NULL
+```
+O atributo __scheme_name__ devido à sua complexidade e às suas inconsistências, foi removido.
+
+******
+
+#### Comparação - Payment & Payment_type: What the water costs
+
+```{r eval=TRUE, echo=FALSE}
+dataset[1:5, c('payment', 'payment_type')]
+```
+Estes atributos, aparentemente, apresentam a mesma informação.
+
+```{r echo=TRUE}
+sum(is.na(dataset$payment))
+sum(is.na(dataset$payment_type))
+```
+Estes atributos não possuem __NA Values__.
+
+```{r eval=TRUE}
+dataset$payment = NULL
+```
+O atributo __payment__ por, na forma como apresenta as informações de cada registro, mais sucinto, foi mantido.
+
+******
+
+#### Comparação - Waterpoint_type & Waterpoint_type_group: The kind of waterpoint
+
+```{r eval=TRUE, echo=FALSE}
+dataset[1:5, c('waterpoint_type', 'waterpoint_type_group')]
+```
+Estes atributos, aparentemente, apresentam a mesma informação.
+
+```{r echo=TRUE}
+length(unique(dataset$waterpoint_type)) 
+length(unique(dataset$waterpoint_type_group))
+```
+O atributo __waterpoint_type__, quando comparado ao __waterpoint_type_group__, apresenta uma característica a mais. Isso pode implicar em mais 'complexidade' ao modelo.
+
+```{r echo=TRUE}
+sum(is.na(dataset$waterpoint_type))
+sum(is.na(dataset$waterpoint_type_group))
+```
+Estes atributos não possuem __NA Values__.
+
+```{r eval=TRUE}
+dataset$waterpoint_type = NULL
+```
+O atributo __waterpoint_type__ por ser 'levemente' mais complexo que o atributo __waterpoint_type_group__, foi removido.
+
+******
