@@ -1,30 +1,32 @@
-myFormula = train$status_group ~ .
+myFormula = dataset$status_group ~ .
 
 library(randomForest)
-rForest = randomForest(myFormula, data = train, importance = TRUE, do.trace = FALSE)
+rForest = randomForest(myFormula, data = dataset, importance = TRUE, do.trace = TRUE, ntree = 1)
 
-predVal(rForest, train)
-predVal(rForest, test)
+predVal(rForest, dataset)
 
+pred = predict(rForest, testX)
 
 # Grid Search and Hyperparameter
 tempTest = c()
 tempTrain = c()
 
-for (i in 1:700) {
-  rForest = randomForest(myFormula, data = train, importance = TRUE, do.trace = FALSE, ntree = i, mtry = 5, nodesize = (abs(i - 90)))
-  pred = predict(rForest, train)
-  pred1 = predict(rForest, test)
-  print(i)
-  tempTrain[i] = (sum(pred == train$status_group)/nrow(train))
-  tempTest[i] = (sum(pred1 == test$status_group)/nrow(test))
-  print(tempTest[i])
-  if (tempTest[i] >= 0.82) {
-    break;
-  } 
+for (i in 1:500) {
+  for (j in 1:ncol(train)) {
+    rForest = randomForest(myFormula, data = train, importance = TRUE, do.trace = FALSE, ntree = i, mtry = j, nodesize = (abs(i - 90)))
+    pred = predict(rForest, train)
+    pred1 = predict(rForest, test)
+    print(paste(i, j, sep = '.'))
+    tempTrain[j] = (sum(pred == train$status_group)/nrow(train))
+    tempTest[j] = (sum(pred1 == test$status_group)/nrow(test))
+    print(tempTest[j])
+    if (tempTest[j] >= 0.82) {
+      break;
+    } 
+  }
 }
 
-plot(tempTrain[1:250], main = 'Learning Curve - rForest (gSearch 1:250)', type = 'l', col = 'red', xlim = c(0, 240.5), ylim = c(0.74, 0.86), ylab = 'Accuracy')
+plot(tempTrain[1:250], main = 'Learning Curve - rForest (gSearch 1:250)', type = 'l', col = 'red', xlim = c(0, 500), ylim = c(0.74, 0.86), ylab = 'Accuracy')
 lines(tempTest[1:250], type = 'l', col = 'blue')
 legend("topright", inset = 0.15, title = "datasets", c("train","test"), fill = c("red","blue"), horiz = FALSE)
 
