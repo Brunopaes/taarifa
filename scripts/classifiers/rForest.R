@@ -1,7 +1,7 @@
 myFormula = dataset$status_group ~ .
 
 library(randomForest)
-rForest = randomForest(myFormula, data = dataset, importance = TRUE, do.trace = TRUE, ntree = 1)
+rForest = randomForest(myFormula, data = dataset, importance = TRUE, do.trace = TRUE, ntree = 90)
 
 predVal(rForest, dataset)
 

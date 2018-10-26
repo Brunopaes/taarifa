@@ -10,15 +10,15 @@ sum(is.na(testX$construction_year))
 dataset = na.omit(dataset)
 
 ## Checking the type o Y attribute
-sapply(testX, class)                                  # [1] 'character'
+sapply(dataset, class)                                  # [1] 'character'
 
 ## Char to Factor
 for (i in 1:2) {
-  testX[, i] = as.factor(paste(testX[, i]))
+  dataset[, i] = as.factor(paste(dataset[, i]))
 }
 
-for (i in 1:ncol(testX)) {
-  testX[, i] = as.factor(paste(testX[, i]))
+for (i in 5:ncol(dataset)) {
+  dataset[, i] = as.factor(paste(dataset[, i]))
 }
 
 rm(i)

@@ -5,7 +5,7 @@ predVal = function(model, test) {
   real = test$status_group
   
   print(sum(predict == real)/nrow(test))
-  confusionMatrix(table(predict, real))
+  table(predict, real)
 }
 
 # randomForest - Grid Search

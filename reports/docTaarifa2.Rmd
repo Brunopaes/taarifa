@@ -1,0 +1,397 @@
+---
+title: "O problema da Tarifa"
+output: html_document
+---
+
+```{r include=TRUE}
+library(readr)
+trainX = read_csv("~/Documents/OneDrive/Acadêmico/ESPM/Semestre V/Tel 03.3009 - Machine Learning e Analytics/Trabalhos/taarifaProblem/data/trainX.csv")
+trainX$id = NULL
+
+trainY = read_csv("~/Documents/OneDrive/Acadêmico/ESPM/Semestre V/Tel 03.3009 - Machine Learning e Analytics/Trabalhos/taarifaProblem/data/trainY.csv")
+trainY$id = NULL
+
+dataset = cbind(trainX, trainY)
+
+rm(trainX)
+rm(trainY)
+```
+
+<style>
+  body {text-align: justify }
+</style>
+
+![Picture-Tanzania.]("~/Documents/OneDrive/Acadêmico/ESPM/Semestre V/Tel 03.3009 - Machine Learning e Analytics/Trabalhos/taarifaProblem/reports/tanzania.jpeg")
+
+Utilizando os dados da Tarifa e do Ministerio das Aguas da Tanzania, pode-se prever quais _waterpoints_ sao funcionais, quais precisam de reparos e quais nao funcionam. Dando uma boa compreensao de quais _waterpoints_ irao falhar podendo melhorar as operacoes de manutencao e garantir que a Agua limpa e potavel esteja disponivel para as comunidades em toda a Tanzania.
+******
+
+## Aquisi??o de Dados
+
+Os dados foram adquiridos pelo site: "Driven Data dentro da competi??o Pump it Up: Data Mining the Water Table" eles estavam distribuidos em 2 tabelas, o modelo de teste com os dados coletados pelo ministerio de agua da Tanzania e a segunda tabela com o modelo de treinamento para as bombas de agua.E por fim, uma tabela com o modelo de submiss?o dos resultados obtidos pelo processamento. Atribuimos a tabela de treinamento como variavel "Y"" e a tabela de teste n?s dividimos em 2 modelos de variavel "X", um para teste e outro para treino.  
+
+******
+
+## Pre-processsamento
+
+O pre-processamento, eh uma das fases de maior relevancia para projetos d e _Data Mining_ e Aprendizado de Maquina, sendo fundamental para o sucesso do projeto. Os metodos de coleta de dados geralmente sao  controlados, resultando em valores de intervalo _out-of-range_ e inconsistancias por todo o _dataset_. Nesta etapa tenta-se entender e descrever o comportamento dos dados dentro do _dataset_.
+
+******
+
+#### Simplificacao do _dataset_
+
+Esta sessao, alem de descrever os atributos presentes no dataset, tambem descreve os metodos e suas justificativas utilizadas para simplificacao do _dataset_.
+
+******
+
+#### Amount_tsh: Total static head (amount water available to _waterpoint_).
+
+```{r echo=TRUE}
+sum(dataset$amount_tsh == 0)/nrow(dataset)
+```
+Pode-se notar que, aproximadamente, 70% dos registros deste atributo possuem correspondencia com o valor '0', ou seja, aparentemente grande parte dos _waterpoints_ possuem uma pequena quantidade de Agua disponivel.
+
+```{r echo=TRUE}
+sum(is.na(dataset$amount_tsh))
+```
+Este atributo nao possui __NA Values__.
+
+```{r eval=TRUE}
+dataset$amount_tsh = NULL
+```
+Em funcao desta inconsistancia, o atributo __amount_tsh__ foi removido do _dataset_.
+
+******
+
+#### Comparacao - Quantity & Quantity_group: The quantity of water
+
+```{r eval=TRUE, echo=FALSE}
+dataset[1:5, c('quantity', 'quantity_group')]
+```
+Estes atributos, aparentemente, apresentam a mesma informacao, n?o fazendo muito sentido ent?o utilizar os 2 atributos para fazer a analise.
+
+```{r echo=TRUE}
+unique(dataset$quantity)
+unique(dataset$quantity_group)
+```
+Ambos atributos representam o mesmo leque de caracteristicas. 
+
+```{r echo=TRUE}
+sum(is.na(dataset$quantity))
+sum(is.na(dataset$quantity_group))
+```
+Estes atributos nao possuem __NA Values__.
+
+```{r eval=TRUE}
+dataset$quantity_group = NULL
+```
+Dessa forma o atributo __quantity_group__ foi removido devido a sua forma redundancia e maior extens?o de nome.
+
+******
+
+#### GPS_Height:
+__Sera que a altitude dos _waterpoints_ influenciam o modelo?__
+
+```{r eval=TRUE}
+sum(dataset$gps_height == 0)/nrow(dataset)
+```
+Aproximadamente 34% dos registros deste atributo possuem correspondencia com o valor '0', ou seja, aparentemenre 34% dos _waterpoints_ encontram-se no nivel do mar.
+
+```{r eval=TRUE}
+sum(is.na(dataset$gps_height))
+```
+Este atributo nao possui __NA Values__.
+
+```{r eval=TRUE}
+dataset$gps_height = NULL
+```
+Embora este atributo possua significancia para o modelo, o mesmo apresenta muitas inconsistancias.
+
+******
+
+#### Latitude & Longitude:
+__Sera que a Latitude & Longitude dos _waterpoints_ influenciam o modelo?__
+
+```{r include=FALSE}
+lat = as.factor(paste(dataset$latitude))
+long = as.factor(paste(dataset$longitude))
+```
+```{r eval=TRUE}
+length(unique(lat))
+length(unique(long))      
+```
+Mediante a complexidade da somatorio de valores Unicos nesses atributos, estes iriam aumentar a multiplicidade  do modelo. 
+
+```{r eval=TRUE}
+dataset$longitude = NULL
+dataset$latitude = NULL
+```
+Estes atributos em decorrencia de suas baixas capacidades de generalizacao deixam o modelo um tanto quanto complexo.
+
+******
+
+#### Comparacao - basin, district_code, region, region_code, lga, ward & subvillage:
+```{r eval=TRUE}
+length(unique(dataset$district_code))                 
+length(unique(dataset$region))                   
+length(unique(dataset$region_code))         
+length(unique(dataset$lga))                          
+length(unique(dataset$ward))                    
+length(unique(dataset$subvillage))   
+```
+O somatorio de valores Unicos nesses atributos, indica o quao complexo os mesmos podem deixar o modelo. 
+
+```{r eval=TRUE}
+sum(is.na(dataset$basin))                             
+sum(is.na(dataset$district_code))                    
+sum(is.na(dataset$region))                           
+sum(is.na(dataset$region_code))                      
+sum(is.na(dataset$lga))                                
+sum(is.na(dataset$ward))                              
+sum(is.na(dataset$subvillage))  
+```
+Dentre esses atributos, somente o atributo __subvillage__ apresenta __NA Values__.
+
+```{r eval=TRUE}
+dataset$region = NULL
+dataset$lga = NULL
+dataset$ward = NULL
+dataset$subvillage = NULL
+dataset$installer = NULL
+dataset$permit = NULL
+dataset$extraction_type = NULL
+```
+Embora o significado de todos os sete atributos sejam os mesmos, o atributo __basin__ , quando comparado com os outros seis atributos, ? menos complexo (9 valores Unicos). Portanto, o atributo __basin__ consegue melhor generalizar o _dataset_. 
+
+******
+
+#### Recorded Date: The date the row was entered
+**Sera que o atributo __recorded_date__ impacta o modelo?**
+
+```{r eval=TRUE}
+dataset$date_recorded = NULL
+```
+
+******
+
+#### Recorded by: Group entering this row of data
+**Sera que o atributo __recorded_by__ impacta o modelo?**
+
+```{r eval=TRUE}
+dataset$recorded_by = NULL
+```
+
+******
+
+#### wpt_name: Name of the waterpoint if there is one
+**Sera que o atributo __wpt_name__ impacta o modelo?**
+
+```{r eval=TRUE}
+dataset$wpt_name = NULL
+```
+
+******
+
+#### Comparacao - scheme_management & scheme_name: Who operates the waterpoint
+```{r eval=TRUE}
+length(unique(dataset$scheme_management))             
+length(unique(dataset$scheme_name))
+```
+O somatorio de valores Unicos nesses atributos, indica o quao complexo os mesmos podem deixar o modelo. 
+
+```{r eval=TRUE}
+sum(is.na(dataset$scheme_management))                   
+sum(is.na(dataset$scheme_name))  
+```
+Dentre os atributos, ambos apresentam __NA Values__. No entanto, devido ao seu montante total (28166 __NA Values__), o atributo __scheme_name__ apresenta mais inconsistancias.
+
+```{r eval=TRUE}
+dataset$scheme_name = NULL
+```
+O atributo __scheme_name__ devido as sua complexidade e as suas inconsistancias, foi removido.
+
+******
+
+#### Comparacao - Payment & Payment_type: What the water costs
+
+```{r eval=TRUE, echo=FALSE}
+dataset[1:5, c('payment', 'payment_type')]
+```
+Estes atributos, aparentemente, apresentam a mesma informacao.
+
+```{r echo=TRUE}
+sum(is.na(dataset$payment))
+sum(is.na(dataset$payment_type))
+```
+Estes atributos nao possuem __NA Values__.
+O atributo __payment__ por, na forma como apresenta as informacoes de cada registro, mais sucinto, foi mantido.
+
+******
+
+#### Comparao - Waterpoint_type & Waterpoint_type_group: The kind of waterpoint
+
+```{r eval=TRUE, echo=FALSE}
+dataset[1:5, c('waterpoint_type', 'waterpoint_type_group')]
+```
+Estes atributos, aparentemente, apresentam a mesma informacao.
+
+```{r echo=TRUE}
+length(unique(dataset$waterpoint_type)) 
+length(unique(dataset$waterpoint_type_group))
+```
+O atributo __waterpoint_type__, quando comparado ao __waterpoint_type_group__, apresenta uma caracteristicas a mais. Isso pode implicar em mais 'complexidade' ao modelo.
+
+```{r echo=TRUE}
+sum(is.na(dataset$waterpoint_type))
+sum(is.na(dataset$waterpoint_type_group))
+```
+Estes atributos nao possuem __NA Values__.
+
+
+******
+
+#### Public Meeting?
+
+```{r echo=TRUE}
+length(unique(dataset$public_meeting))
+unique(dataset$public_meeting)                          
+sum(is.na(dataset$public_meeting)) 
+```
+Esse atributo eh um tanto quanto obscuro, dessa forma, foi removido do modelo.
+
+```{r eval=TRUE}
+dataset$Public_Meeting = NULL
+```
+
+
+
+******
+#### Num Private?
+```{r echo=TRUE}
+length(unique(dataset$num_private)) 
+sum(is.na(dataset$num_private)) 
+```
+Esse atributo eh um tanto quanto obscuro, dessa forma, foi removido do modelo.
+
+```{r eval=TRUE}
+dataset$num_private = NULL
+```
+
+******
+
+
+#### Funder 
+```{r echo=TRUE}
+length(unique(dataset$funder))
+sum(is.na(dataset$funder)) 
+```
+Este atributo, por ter um intervalo de valores muito alto, n?o generaliza o conjunto de dados.
+
+```{r eval=TRUE}
+dataset$funder = NULL
+```
+
+******
+
+#### Population
+```{r echo=TRUE}
+sum(is.na(dataset$population))
+sum(dataset$population == 0) 
+```
+Este atributo, ? bastante importante. No entanto, este atributo ? um pouco inconsistente, uma vez que, em 21381 registros, a popula??o circundante ? 0.
+
+```{r eval=TRUE}
+dataset$population = NULL
+```
+
+******
+
+#### Construction Year
+```{r echo=TRUE}
+sum(is.na(dataset$construction_year))
+sum(dataset$construction_year == 0) 
+```
+Este atributo, ? um dos mais importantes. Por isso, n?o deve ser removido. No entanto, existem valores inconsistentes (20709 registros iguais a 0).
+Estes registros, ou devem ser tratados ou removidos do conjunto de dados.
+
+******
+
+#### Conclus?o Pr?-Processamento
+Random Forests n?o podem lidar com mais de 53 classes categ?ricas!
+
+1a Approach: remova o instalador e o construction_year.
+
+2a Approach: Se esta decis?o impactar diretamente na precis?o do modelo, vari?veis dummy ser?o constru?das.
+
+
+******
+
+```{r include=TRUE}
+set.seed(1234)
+library(caret)
+trainIndex = createDataPartition(dataset$status_group, p = 0.8, list = FALSE, times = 1)
+
+train = dataset[trainIndex,]
+test = dataset[-trainIndex,]
+
+rm(trainIndex)
+rm(dataset)
+
+
+```
+
+#### RandomForest
+```{r echo=TRUE}
+myFormula = train$status_group ~.
+tempTest = c()
+tempTrain = c()
+library(randomForest)
+
+for (i in 1:700) {
+  rForest = randomForest(myFormula, data = train, importance = TRUE, do.trace = FALSE, ntree = i, mtry = 5, nodesize = (abs(i - 90)))
+  pred = predict(rForest, train)
+  pred1 = predict(rForest, test)
+  print(i)
+  tempTrain[i] = (sum(pred == train$status_group)/nrow(train))
+  tempTest[i] = (sum(pred1 == test$status_group)/nrow(test))
+  print(tempTest[i])
+  if (tempTest[i] >= 0.82) {
+    break;
+  } 
+}
+
+```
+
+#### GridSearch
+
+```{r echo=TRUE}
+plot(tempTrain[1:250], main = 'Learning Curve - rForest (gSearch 1:250)', type = 'l', col = 'red', xlim = c(0, 240.5), ylim = c(0.74, 0.86), ylab = 'Accuracy')
+lines(tempTest[1:250], type = 'l', col = 'blue')
+legend("topright", inset = 0.15, title = "datasets", c("train","test"), fill = c("red","blue"), horiz = FALSE)
+
+plot(tempTrain - tempTest, type = 'l', col = 'cyan', main = 'Train Test accuracy (gSearch 1:500)', xlim = c(0, 500))
+
+rm(pred2)
+rm(pred)
+rm(i)
+```
+
+#### A remo??o dos atributos do instalador e do ano de constru??o foi uma boa abordagem?
+```{r echo=TRUE}
+mean(tempTrain)                                        
+mean(tempTest)                                         
+
+max(tempTrain)                                         
+max(tempTest)                                          
+```
+Resultados
+```{r echo = TRUE}
+predVal(pred2, train)
+predVal(pred, test)
+```
+
+![Picture-Tanzania.](C:/Users/11510532/Pictures/rForest -LearningCurve.png)
+
+## Conclusao
+
+Utilizando o modelo Random Forest, obtivemos uma acuracia de 83% no modelo de treinamento quando submetemos ao Driven Data
