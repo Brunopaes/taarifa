@@ -340,8 +340,8 @@ rm(dataset)
 
 ```
 
-#### RandomForest
-```{r echo=TRUE}
+#### RandomForest - Grid Search
+```
 myFormula = train$status_group ~.
 tempTest = c()
 tempTrain = c()
@@ -362,9 +362,8 @@ for (i in 1:700) {
 
 ```
 
-#### GridSearch
-
-```{r echo=TRUE}
+#### Plot do Grid Search
+```
 plot(tempTrain[1:250], main = 'Learning Curve - rForest (gSearch 1:250)', type = 'l', col = 'red', xlim = c(0, 240.5), ylim = c(0.74, 0.86), ylab = 'Accuracy')
 lines(tempTest[1:250], type = 'l', col = 'blue')
 legend("topright", inset = 0.15, title = "datasets", c("train","test"), fill = c("red","blue"), horiz = FALSE)
@@ -376,22 +375,8 @@ rm(pred)
 rm(i)
 ```
 
-#### A remo??o dos atributos do instalador e do ano de constru??o foi uma boa abordagem?
-```{r echo=TRUE}
-mean(tempTrain)                                        
-mean(tempTest)                                         
-
-max(tempTrain)                                         
-max(tempTest)                                          
-```
-Resultados
-```{r echo = TRUE}
-predVal(pred2, train)
-predVal(pred, test)
-```
-
 ![Picture-Tanzania.](C:/Users/11510532/Pictures/rForest -LearningCurve.png)
 
-## Conclusao
+## Conclusão
 
-Utilizando o modelo Random Forest, obtivemos uma acuracia de 83% no modelo de treinamento quando submetemos ao Driven Data
+Utilizando o modelo Random Forest em grid search e hiperparametrização, obtivemos uma acuracia máxima de 86% no dataset de treinamento. O modelo, no dataset de testes, obteve uma acurácia máxima de 78%. Embora a acurácia, quando comparada com as predições feitas no dataset de testes, tenha sido inferior (caracterizando um overfitting do modelo), o modelo obteve um bom desempenho. Uma das formas de se constatar sua eficiência é comparar o seu desempenho com os outros participantes da competição (A acurácia máxima no dataset de validação foi de 82,85%). Pode-se notar que a diferença entre o primeiro lugar da competição (82,85%) e o modelo do grupo (78,63%) é menor que 5%.
